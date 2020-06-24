@@ -38,9 +38,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 	void sendByte();
 #endif
 /* SBUS object, input the serial bus */
-SBUS::SBUS(HardwareSerial& bus)
+SBUS::SBUS(HardwareSerial& bus, int8_t gpio)
 {
 	_bus = &bus;
+	_gpio = gpio;
 }
 
 /* starts the serial communication */
@@ -63,7 +64,11 @@ void SBUS::begin()
 	#elif defined(_BOARD_MAPLE_MINI_H_) // Maple Mini
 		_bus->begin(_sbusBaud,SERIAL_8E2);
 	#elif defined(ESP32)              	// ESP32
-    _bus->begin(_sbusBaud,SERIAL_8E2, -1, -1, true);
+	if (_gpio != -1) {
+    	_bus->begin(_sbusBaud,SERIAL_8E2, _gpio, -1, true);
+	} else {
+    	_bus->begin(_sbusBaud,SERIAL_8E2, -1, -1, true);
+	}
   #elif defined(__AVR_ATmega2560__) || defined(__AVR_ATmega328P__) || defined(__AVR_ATmega32U4__)		// Arduino Mega 2560, 328P or 32u4
     _bus->begin(_sbusBaud, SERIAL_8E2);
 	#elif defined(ARDUINO_SAMD_ZERO)		// Adafruit Feather M0
